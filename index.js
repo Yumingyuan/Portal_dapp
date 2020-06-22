@@ -2,7 +2,7 @@ var ethUtil = require('ethereumjs-util')
 var sigUtil = require('eth-sig-util')
 var Eth = require('ethjs')
 window.Eth = Eth
-console.log('new V2')
+console.log('Conflux')
 var fs = require('fs')
 var terms = fs.readFileSync(__dirname + '/terms.txt').toString()
 //Yumingyuan added
@@ -18,7 +18,7 @@ function connect () {
 			   window.open("https://github.com/Conflux-Chain/conflux-portal/releases")
 		}
 		else{
-			window.conflux.enable()
+			conflux.enable()
 			console.log('OK!!!')
 		}
   }
