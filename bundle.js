@@ -15,15 +15,16 @@ connectButton.addEventListener('click', function () {
 })
 
 function connect () {
-	if (window.conflux === 'undefined') {
-		if(confirm('检测到您的浏览器中并未安装conflux钱包插件，点击确定前往下载。')){
-			   window.open("https://github.com/Conflux-Chain/conflux-portal/releases")
-		}
-		else{
-			conflux.enable()
+	if (typeof window.conflux !== 'undefined') {
+			window.conflux.enable()
 			console.log('OK!!!')
 		}
-  }
+	else{
+			if(confirm('检测到您的浏览器中并未安装conflux钱包插件，点击确定前往下载.'))
+			{
+			   window.open("https://github.com/Conflux-Chain/conflux-portal/releases")
+			}
+		}
 }
 
 ethSignButton.addEventListener('click', function(event) {
