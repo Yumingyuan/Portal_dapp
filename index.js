@@ -40,7 +40,7 @@ function connect () {
 
 ethSignButton.addEventListener('click', function(event) {
   event.preventDefault()
-  ConfluxJSSDK.util.sign.sha3(Buffer.from('123'))
+  ConfluxJSSDK.util.sign.sha3(Buffer.from('chelsea'))
   //var msg = '0x879a053d4800c6354e76c7985a865d2922c82fb5b3f4577b2fe08b998954f2e0'
   //var from = web3.eth.accounts[0]
   //if (!from) return connect()
