@@ -15,9 +15,14 @@ connectButton.addEventListener('click', function () {
 })
 
 function connect () {
-  if (typeof ethereum !== 'undefined') {
-    ethereum.enable()
-    .catch(console.error)
+	if (window.conflux === 'undefined') {
+		if(confirm('检测到您的浏览器中并未安装conflux钱包插件，点击确定前往下载。')){
+			   window.open("https://github.com/Conflux-Chain/conflux-portal/releases")
+		}
+		else{
+			window.conflux.enable()
+			console.log('OK!!!')
+		}
   }
 }
 
