@@ -28,7 +28,7 @@ connectButton.addEventListener('click', function () {
 function connect () {
 	if (typeof window.conflux !== 'undefined') {
 			window.conflux.enable()
-			console.log('OK!!!')
+			console.log('Connect Portal OK!\n')
 		}
 	else{
 			if(confirm('检测到您的浏览器中并未安装conflux钱包插件，点击确定前往下载.'))
@@ -36,102 +36,52 @@ function connect () {
 			   window.open("https://github.com/Conflux-Chain/conflux-portal/releases")
 			}
 		}
+	console.log('\n')
 }
 
-ethSignButton.addEventListener('click', function(event) {
-  event.preventDefault()
-  result=ConfluxJSSDK.util.sign.sha3('chelsea')
-  console.log('Result:'+result)
-  //var msg = '0x879a053d4800c6354e76c7985a865d2922c82fb5b3f4577b2fe08b998954f2e0'
-  //var from = web3.eth.accounts[0]
-  //if (!from) return connect()
-  //web3.eth.sign(from, msg, function (err, result) {
-    //if (err) return console.error(err)
-    //console.log('SIGNED:' + result)
-  //})
+Sha3_Hash.addEventListener('click', function(event) {
+		event.preventDefault()
+		var msg = 'chelsea'
+		result=ConfluxJSSDK.util.sign.sha3(Buffer.from(msg))
+		var from = conflux.selectedAddress
+		if (!from) return connect()
+		console.log('Sha3 Result of '+msg+' is: '+result.toString('hex'))
+		console.log('Current address: '+from)
+		var up_case=ConfluxJSSDK.util.sign.checksumAddress(from)
+		console.log('After called checksumAddress: '+up_case)
+		console.log('\n')
 })
 
 personalSignButton.addEventListener('click', function(event) {
-  event.preventDefault()
-  var text = terms
-  var msg = ethUtil.bufferToHex(new Buffer(text, 'utf8'))
-  // var msg = '0x1' // hexEncode(text)
-  console.log(msg)
-  var from = web3.eth.accounts[0]
-  if (!from) return connect()
-
-  /*  web3.personal.sign not yet implemented!!!
-   *  We're going to have to assemble the tx manually!
-   *  This is what it would probably look like, though:
-    web3.personal.sign(msg, from) function (err, result) {
-      if (err) return console.error(err)
-      console.log('PERSONAL SIGNED:' + result)
-    })
-  */
-
-   console.log('CLICKED, SENDING PERSONAL SIGN REQ')
-  var params = [msg, from]
-  var method = 'personal_sign'
-
-  web3.currentProvider.sendAsync({
-    method,
-    params,
-    from,
-  }, function (err, result) {
-    if (err) return console.error(err)
-    if (result.error) return console.error(result.error)
-    console.log('PERSONAL SIGNED:' + JSON.stringify(result.result))
-
-    console.log('recovering...')
-    const msgParams = { data: msg }
-    msgParams.sig = result.result
-    console.dir({ msgParams })
-    const recovered = sigUtil.recoverPersonalSignature(msgParams)
-    console.dir({ recovered })
-
-    if (recovered === from ) {
-      console.log('SigUtil Successfully verified signer as ' + from)
-      window.alert('SigUtil Successfully verified signer as ' + from)
-    } else {
-      console.dir(recovered)
-      console.log('SigUtil Failed to verify signer when comparing ' + recovered.result + ' to ' + from)
-      console.log('Failed, comparing %s to %s', recovered, from)
-    }
-
-
-    /*
-    method = 'personal_ecRecover'
-    var params = [msg, result.result]
-    web3.currentProvider.sendAsync({
-      method,
-      params,
-      from,
-    }, function (err, recovered) {
-      console.dir({ err, recovered })
-      if (err) return console.error(err)
-      if (result.error) return console.error(result.error)
-
-      if (result.result === from ) {
-        console.log('Successfully verified signer as ' + from)
-      } else {
-        console.log('Failed to verify signer when comparing ' + result.result + ' to ' + from)
-      }
-
-    })
-    */
-  })
-
+	event.preventDefault()
+	var from = conflux.selectedAddress
+	if (!from) return connect()
+	var privateKey = Buffer.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1])
+	var buffer32 = Buffer.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31])
+	var address=ConfluxJSSDK.util.sign.privateKeyToAddress(Buffer.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1]))
+	console.log('sign result r:'+ConfluxJSSDK.util.sign.ecdsaSign(buffer32, privateKey).r.toString('hex'))
+	console.log('sign result s:'+ConfluxJSSDK.util.sign.ecdsaSign(buffer32, privateKey).s.toString('hex'))
+	console.log('This address:'+address.toString('hex')+' signed data by ecdsa:'+buffer32.toString('hex'))
+	console.log('\n')
 })
 
 
 personalRecoverTest.addEventListener('click', function(event) {
-  event.preventDefault()
-  var text = 'hello!'
-  var msg = ethUtil.bufferToHex(new Buffer(text, 'utf8'))
+	event.preventDefault()
+	var from = conflux.selectedAddress
+	if (!from) return connect()
+	privateKey = Buffer.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1])//私钥数据
+	buffer32 = Buffer.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31])//待签名数据
+	buffer31 = Buffer.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 30])
+	var result=ConfluxJSSDK.util.sign.publicKeyToAddress(ConfluxJSSDK.util.sign.ecdsaRecover(buffer31, ConfluxJSSDK.util.sign.ecdsaSign(buffer32, privateKey)))//验证签名
+	console.log('The data signed by:'+result.toString('hex'))
+	
+  //var text = 'hello!'
+  //var msg = ethUtil.bufferToHex(new Buffer(text, 'utf8'))
   // var msg = '0x1' // hexEncode(text)
-  console.log(msg)
-  var from = web3.eth.accounts[0]
-  if (!from) return connect()
+  //console.log(msg)
+  //var from = web3.eth.accounts[0]
+  //if (!from) return connect()
 
   /*  web3.personal.sign not yet implemented!!!
    *  We're going to have to assemble the tx manually!
@@ -142,11 +92,11 @@ personalRecoverTest.addEventListener('click', function(event) {
     })
   */
 
-   console.log('CLICKED, SENDING PERSONAL SIGN REQ')
-  var params = [msg, from]
-  var method = 'personal_sign'
+   //console.log('CLICKED, SENDING PERSONAL SIGN REQ')
+  //var params = [msg, from]
+  //var method = 'personal_sign'
 
-  web3.currentProvider.sendAsync({
+  /*web3.currentProvider.sendAsync({
     method,
     params,
     from,
@@ -180,13 +130,14 @@ personalRecoverTest.addEventListener('click', function(event) {
       }
 
     })
-  })
+  })*/
 
 })
 
 ethjsPersonalSignButton.addEventListener('click', function(event) {
   event.preventDefault()
-  var text = terms
+  
+  /*var text = terms
   var msg = ethUtil.bufferToHex(new Buffer(text, 'utf8'))
   var from = web3.eth.accounts[0]
   if (!from) return connect()
@@ -212,7 +163,7 @@ ethjsPersonalSignButton.addEventListener('click', function(event) {
       console.log('Ethjs failed to recover the message signer!')
       console.dir({ recovered })
     }
-  })
+  })*/
 })
 
 
