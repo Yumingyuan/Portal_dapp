@@ -6,7 +6,7 @@ console.log('Conflux')
 var fs = require('fs')
 var terms = fs.readFileSync(__dirname + '/terms.txt').toString()
 //Yumingyuan added
-const { Conflux, util } = require('js-conflux-sdk');
+const { Conflux, util } = require('js-conflux-sdk')
 
 connectButton.addEventListener('click', function () {
   connect()
