@@ -10,6 +10,19 @@ var terms = Buffer("IyBUZXJtcyBvZiBVc2UgIw0KDQoqKlRISVMgQUdSRUVNRU5UIElTIFNVQkpF
 //Yumingyuan added
 const { Conflux, util } = require('js-conflux-sdk');
 
+async function main() {
+  const cfx = new Conflux({
+    url: 'http://testnet-jsonrpc.conflux-chain.org:12537',
+    defaultGasPrice: 100,
+    defaultGas: 1000000,
+    logger: console,
+  });
+ 
+  const balance = await cfx.getBalance('0xbbd9e9be525ab967e633bcdaeac8bd5723ed4d6b');
+  console.log(balance); // 937499420597305000n
+}
+ 
+main();
 connectButton.addEventListener('click', function () {
   connect()
 })
