@@ -1,5 +1,3 @@
-var ethUtil = require('ethereumjs-util')
-var sigUtil = require('eth-sig-util')
 var Eth = require('ethjs')
 //var keccak256 = require('keccak256')
 window.Eth = Eth
@@ -10,6 +8,7 @@ var terms = fs.readFileSync(__dirname + '/terms.txt').toString()
 const { Conflux, util } = require('js-conflux-sdk');
 var chainid=0x1
 var cfx_sign_result=''
+var message_hash=''
 connectButton.addEventListener('click', function () {
   connect()
 })
@@ -85,12 +84,13 @@ cfxSignButton.addEventListener('click', function(event) {
 	  contents: 'Hello, Bob!',
 	},
 }
-//调用Portal签名
+message_hash='0x'+ConfluxJSSDK.util.sign.sha3(Buffer.from(JSON.stringify(typedData))).toString('hex')
+//调用Portal对message_hash签名
 	confluxJS.provider.sendAsync(
         {
           method: 'cfx_sign',
           params: [conflux.selectedAddress,
-            ConfluxJSSDK.util.sign.sha3(Buffer.from(JSON.stringify(typedData))).toString('hex'),],//对typedData转为JSON对象后，用Buffer传入sha3函数，并将sha3计算结果转为16进制字符串用Portal签名
+            message_hash,],//对typedData转为JSON对象后，用Buffer传入sha3函数，并将sha3计算结果转为16进制字符串用Portal签名
           from: conflux.selectedAddress,
         },
         (err, result) => {
@@ -110,134 +110,15 @@ cfxSignButton.addEventListener('click', function(event) {
 
 personalRecoverTest.addEventListener('click', function(event) {
 	event.preventDefault()
-	const typedData1 = {
-	types: {
-	  EIP712Domain: [
-		{ name: 'name', type: 'string' },
-		{ name: 'version', type: 'string' },
-		{ name: 'chainId', type: 'uint256' },
-		{ name: 'verifyingContract', type: 'address' },
-	  ],
-	  Person: [
-		{ name: 'name', type: 'string' },
-		{ name: 'wallet', type: 'address' },
-	  ],
-	  Mail: [
-		{ name: 'from', type: 'Person' },
-		{ name: 'to', type: 'Person' },
-		{ name: 'contents', type: 'string' },
-	  ],
-	},
-	primaryType: 'Mail',
-	domain: {
-	  name: 'Ether Mail',
-	  version: '1',
-	  chainId: 3,
-	  verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccb',
-	},
-	message: {
-	  sender: {
-		name: 'Cow',
-		wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
-	  },
-	  recipient: {
-		name: 'Bob',
-		wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
-	  },
-	  contents: 'Hello, Bob!',
-	},
-}
-	confluxJS.provider.sendAsync(
-        {
-          method: 'cfx_sign',
-          params: [conflux.selectedAddress,
-            ConfluxJSSDK.util.sign.sha3(Buffer.from(JSON.stringify(typedData1))).toString('hex'),],//对typedData转为JSON对象后，用Buffer传入sha3函数，并将sha3计算结果转为16进制字符串用Portal签名
-          from: conflux.selectedAddress,
-        },
-        (err, result) => {
-          if (err) {
-            console.log(err)
-          } else {
-            if (result.warning) {
-              console.warn(result.warning)
-            }
-			if (JSON.stringify(result)===cfx_sign_result)
-			{
-				console.log('The signed result is same')
-			}
-			else{
-				console.log('The signed result is different!')
-			}
-          }
-        }
-      )
-})
-
-ethjsPersonalSignButton.addEventListener('click', function(event) {
-  event.preventDefault()
-  var from = conflux.selectedAddress
-	if (!from) return connect()
-  console.log('We changed cfx_sign to use the personal_sign logic. We recommend using cfx_sign method instead of personal_sign. Try Sign Typed Data below!')
-})
-
-
-signTypedDataButton.addEventListener('click', function(event) {
-  event.preventDefault()
 	var from = conflux.selectedAddress
 	if (!from) return connect()
-  const typedData = {
-        types: {
-          EIP712Domain: [
-            { name: 'name', type: 'string' },
-            { name: 'version', type: 'string' },
-            { name: 'chainId', type: 'uint256' },
-            { name: 'verifyingContract', type: 'address' },
-          ],
-          Person: [
-            { name: 'name', type: 'string' },
-            { name: 'wallet', type: 'address' },
-          ],
-          Mail: [
-            { name: 'from', type: 'Person' },
-            { name: 'to', type: 'Person' },
-            { name: 'contents', type: 'string' },
-          ],
-        },
-        primaryType: 'Mail',
-        domain: {
-          name: 'Ether Mail',
-          version: '1',
-          chainid,
-          verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
-        },
-        message: {
-          sender: {
-            name: 'Cow',
-            wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
-          },
-          recipient: {
-            name: 'Bob',
-            wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
-          },
-          contents: 'Hello, Bob!',
-        },
-      }
-	  confluxJS.provider.sendAsync(
-        {
-          method: 'cfx_signTypedData_v3',
-          params: [conflux.selectedAddress, JSON.stringify(typedData)],
-          from: conflux.selectedAddress,
-        },
-        (err, result) => {
-          if (err) {
-            console.log(err)
-          } else {
-			  console.log('typed data signed result:'+JSON.stringify(result))
-            //sendSignedTypedData.disabled = false
-          }
-        }
-      )
+	self_sign_result=ConfluxJSSDK.Message.sign('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef', // privateKey
+	'0x592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba',)
+	recover_public_key=ConfluxJSSDK.Message.recover('0x6e913e2b76459f19ebd269b82b51a70e912e909b2f5c002312efc27bcc280f3c29134d382aad0dbd3f0ccc9f0eb8f1dbe3f90141d81574ebb6504156b0d7b95f01',
+	'0x592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba',)
+	console.log('Recover result:'+recover_public_key)
 })
+
 
 signTypedDataV3Button.addEventListener('click', function(event) {
   event.preventDefault()
@@ -299,53 +180,3 @@ signTypedDataV3Button.addEventListener('click', function(event) {
 
 })
 
-signTypedDataV4Button.addEventListener('click', function(event) {
-  event.preventDefault()
-
-  var from = conflux.selectedAddress
-	if (!from) return connect()
-		console.log('Wait for API')
-})
-
-ethjsSignTypedDataButton.addEventListener('click', function(event) {
-  event.preventDefault()
-  var from = conflux.selectedAddress
-	if (!from) return connect()
-		console.log('Wait for API')
-  /*
-  const msgParams = [
-    {
-      type: 'string',
-      name: 'Message',
-      value: 'Hi, Alice!'
-    },
-    {
-      type: 'uint32',
-      name: 'A number',
-      value: '1337'
-    }
-  ]
-
-  var from = web3.eth.accounts[0]
-  if (!from) return connect()
-
-  console.log('CLICKED, SENDING PERSONAL SIGN REQ')
-  var params = [msgParams, from]
-
-  var eth = new Eth(web3.currentProvider)
-
-  eth.signTypedData(msgParams, from)
-  .then((signed) => {
-    console.log('Signed!  Result is: ', signed)
-    console.log('Recovering...')
-
-    const recovered = sigUtil.recoverTypedSignature({ data: msgParams, sig: signed })
-
-    if (ethUtil.toChecksumAddress(recovered) === ethUtil.toChecksumAddress(from)) {
-      alert('Successfully ecRecovered signer as ' + from)
-    } else {
-      alert('Failed to verify signer when comparing ' + signed + ' to ' + from)
-    }
-
-  })*/
-})
